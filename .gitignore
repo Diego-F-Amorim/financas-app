@@ -1,0 +1,20 @@
+# Dependências
+node_modules/
+
+# Variáveis de ambiente (senhas e chaves!)
+.env
+.env.local
+!.env.example
+
+# Builds
+dist/
+build/
+
+# Logs
+*.log
+
+# Sistema / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
