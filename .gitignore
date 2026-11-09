@@ -18,3 +18,5 @@ build/
 Thumbs.db
 .vscode/*
 !.vscode/extensions.json
+# Prisma Client gerado
+generated/
