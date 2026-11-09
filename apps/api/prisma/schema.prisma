@@ -1,0 +1,126 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------- ENUMS (listas de opções fixas) ----------
+
+enum TransactionType {
+  INCOME // receita
+  EXPENSE // despesa
+}
+
+enum Frequency {
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+enum GoalType {
+  SAVING // juntar um valor
+  SPENDING_LIMIT // limite de gasto mensal numa categoria
+}
+
+// ---------- TABELAS ----------
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  categories   Category[]
+  transactions Transaction[]
+  recurrings   RecurringTransaction[]
+  goals        Goal[]
+
+  @@map("users")
+}
+
+model Category {
+  id        String          @id @default(uuid())
+  name      String
+  type      TransactionType
+  color     String?
+  icon      String?
+  userId    String?         @map("user_id") // null = categoria padrão do sistema
+  createdAt DateTime        @default(now()) @map("created_at")
+
+  user         User?                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+  recurrings   RecurringTransaction[]
+  goals        Goal[]
+
+  @@unique([userId, name, type])
+  @@map("categories")
+}
+
+model Transaction {
+  id          String          @id @default(uuid())
+  description String
+  amount      Int // centavos, sempre positivo
+  type        TransactionType
+  date        DateTime        @db.Date
+  userId      String          @map("user_id")
+  categoryId  String          @map("category_id")
+  recurringId String?         @map("recurring_id")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  user      User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category  Category              @relation(fields: [categoryId], references: [id])
+  recurring RecurringTransaction? @relation(fields: [recurringId], references: [id], onDelete: SetNull)
+
+  @@unique([recurringId, date])
+  @@index([userId, date])
+  @@map("transactions")
+}
+
+model RecurringTransaction {
+  id          String          @id @default(uuid())
+  description String
+  amount      Int
+  type        TransactionType
+  frequency   Frequency
+  startDate   DateTime        @map("start_date") @db.Date
+  endDate     DateTime?       @map("end_date") @db.Date
+  nextRunDate DateTime        @map("next_run_date") @db.Date
+  active      Boolean         @default(true)
+  userId      String          @map("user_id")
+  categoryId  String          @map("category_id")
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category     Category      @relation(fields: [categoryId], references: [id])
+  transactions Transaction[]
+
+  @@map("recurring_transactions")
+}
+
+model Goal {
+  id            String    @id @default(uuid())
+  name          String
+  type          GoalType
+  targetAmount  Int       @map("target_amount") // centavos
+  currentAmount Int       @default(0) @map("current_amount") // usado em SAVING
+  deadline      DateTime? @db.Date // usado em SAVING
+  categoryId    String?   @map("category_id") // usado em SPENDING_LIMIT
+  userId        String    @map("user_id")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category? @relation(fields: [categoryId], references: [id])
+
+  @@map("goals")
+}
