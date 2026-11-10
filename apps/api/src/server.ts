@@ -2,9 +2,9 @@ import express from "express";
 import { prisma } from "./lib/prisma.js";
 import { authRoutes } from "./modules/auth/auth.routes.js";
 import { errorHandler } from "./middlewares/error-handler.js";
+import { env } from "./env.js";
 
 const app = express();
-const PORT = 3333;
 
 app.use(express.json());
 
@@ -24,6 +24,6 @@ app.use("/auth", authRoutes);
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`API rodando em http://localhost:${PORT}`);
+app.listen(env.PORT, () => {
+  console.log(`API rodando em http://localhost:${env.PORT}`);
 });
