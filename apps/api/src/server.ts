@@ -1,3 +1,4 @@
+import cors from "cors";
 import express from "express";
 import { prisma } from "./lib/prisma.js";
 import { authRoutes } from "./modules/auth/auth.routes.js";
@@ -9,10 +10,12 @@ import { transactionsRoutes } from "./modules/transactions/transactions.routes.j
 
 const app = express();
 
+app.use(cors({ origin: env.WEB_URL }));
+
 app.use(express.json());
 
 app.get("/health", (req, res) => {
-  res.json({ status: "funcionando" });
+  res.json({ status: "ok" });
 });
 
 app.get("/categories", async (req, res) => {
