@@ -1,0 +1,26 @@
+info:
+  name: Create
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:3333/workspaces/{{workspaceId}}/transactions
+  body:
+    type: json
+    data: |-
+      {
+        "description": "Almoço",
+        "amount": 3590,
+        "type": "EXPENSE",
+        "date": "2026-11-10",
+        "categoryId": "b1d4ae56-c67e-4686-91af-80e31bb8463f"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

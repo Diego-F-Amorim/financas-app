@@ -1,0 +1,22 @@
+info:
+  name: Update
+  type: http
+  seq: 3
+
+http:
+  method: PATCH
+  url: http://localhost:3333/workspaces/{{workspaceId}}/transactions/617b1e4d-c3cb-4c97-93da-569f6f955afe
+  body:
+    type: json
+    data: |-
+      {
+        "amount": 4200
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
