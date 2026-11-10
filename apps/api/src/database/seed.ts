@@ -21,7 +21,7 @@ const defaultCategories = [
 async function main() {
   for (const category of defaultCategories) {
     const exists = await prisma.category.findFirst({
-      where: { name: category.name, type: category.type, userId: null },
+      where: { name: category.name, type: category.type, workspaceId: null },
     });
 
     if (!exists) {

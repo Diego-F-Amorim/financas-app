@@ -12,9 +12,9 @@ app.get("/health", (req, res) => {
 
 app.get("/categories", async (req, res) => {
   const categories = await prisma.category.findMany({
-    where: { userId: null },
-    orderBy: [{ type: "asc" }, { name: "asc" }],
-  });
+  where: { workspaceId: null },
+  orderBy: [{ type: "asc" }, { name: "asc" }],
+});
   res.json(categories);
 });
 

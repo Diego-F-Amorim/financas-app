@@ -12,11 +12,11 @@ datasource db {
   provider = "postgresql"
 }
 
-// ---------- ENUMS (listas de opções fixas) ----------
+// ---------- ENUMS ----------
 
 enum TransactionType {
-  INCOME // receita
-  EXPENSE // despesa
+  INCOME
+  EXPENSE
 }
 
 enum Frequency {
@@ -26,11 +26,23 @@ enum Frequency {
 }
 
 enum GoalType {
-  SAVING // juntar um valor
-  SPENDING_LIMIT // limite de gasto mensal numa categoria
+  SAVING
+  SPENDING_LIMIT
 }
 
-// ---------- TABELAS ----------
+enum WorkspaceType {
+  PERSONAL
+  BUSINESS
+}
+
+enum MemberRole {
+  OWNER // dono: faz tudo, inclusive apagar o espaço
+  ADMIN // gerencia membros e dados
+  MEMBER // lança e edita dados
+  VIEWER // só visualiza (ex.: contador)
+}
+
+// ---------- IDENTIDADE ----------
 
 model User {
   id           String   @id @default(uuid())
@@ -40,29 +52,63 @@ model User {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
+  memberships         WorkspaceMember[]
+  transactionsCreated Transaction[]
+
+  @@map("users")
+}
+
+// ---------- ESPAÇOS ----------
+
+model Workspace {
+  id        String        @id @default(uuid())
+  name      String
+  type      WorkspaceType @default(PERSONAL)
+  document  String? // CNPJ, quando for empresa
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+
+  members      WorkspaceMember[]
   categories   Category[]
   transactions Transaction[]
   recurrings   RecurringTransaction[]
   goals        Goal[]
 
-  @@map("users")
+  @@map("workspaces")
 }
 
-model Category {
-  id        String          @id @default(uuid())
-  name      String
-  type      TransactionType
-  color     String?
-  icon      String?
-  userId    String?         @map("user_id") // null = categoria padrão do sistema
-  createdAt DateTime        @default(now()) @map("created_at")
+model WorkspaceMember {
+  id          String     @id @default(uuid())
+  workspaceId String     @map("workspace_id")
+  userId      String     @map("user_id")
+  role        MemberRole @default(MEMBER)
+  createdAt   DateTime   @default(now()) @map("created_at")
 
-  user         User?                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@index([userId])
+  @@map("workspace_members")
+}
+
+// ---------- DADOS FINANCEIROS ----------
+
+model Category {
+  id          String          @id @default(uuid())
+  name        String
+  type        TransactionType
+  color       String?
+  icon        String?
+  workspaceId String?         @map("workspace_id") // null = categoria padrão do sistema
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  workspace    Workspace?             @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   transactions Transaction[]
   recurrings   RecurringTransaction[]
   goals        Goal[]
 
-  @@unique([userId, name, type])
+  @@unique([workspaceId, name, type])
   @@map("categories")
 }
 
@@ -72,18 +118,20 @@ model Transaction {
   amount      Int // centavos, sempre positivo
   type        TransactionType
   date        DateTime        @db.Date
-  userId      String          @map("user_id")
+  workspaceId String          @map("workspace_id")
   categoryId  String          @map("category_id")
+  createdById String?         @map("created_by_id")
   recurringId String?         @map("recurring_id")
   createdAt   DateTime        @default(now()) @map("created_at")
   updatedAt   DateTime        @updatedAt @map("updated_at")
 
-  user      User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspace             @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   category  Category              @relation(fields: [categoryId], references: [id])
+  createdBy User?                 @relation(fields: [createdById], references: [id], onDelete: SetNull)
   recurring RecurringTransaction? @relation(fields: [recurringId], references: [id], onDelete: SetNull)
 
   @@unique([recurringId, date])
-  @@index([userId, date])
+  @@index([workspaceId, date])
   @@map("transactions")
 }
 
@@ -97,11 +145,11 @@ model RecurringTransaction {
   endDate     DateTime?       @map("end_date") @db.Date
   nextRunDate DateTime        @map("next_run_date") @db.Date
   active      Boolean         @default(true)
-  userId      String          @map("user_id")
+  workspaceId String          @map("workspace_id")
   categoryId  String          @map("category_id")
   createdAt   DateTime        @default(now()) @map("created_at")
 
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace    Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   category     Category      @relation(fields: [categoryId], references: [id])
   transactions Transaction[]
 
@@ -112,15 +160,15 @@ model Goal {
   id            String    @id @default(uuid())
   name          String
   type          GoalType
-  targetAmount  Int       @map("target_amount") // centavos
-  currentAmount Int       @default(0) @map("current_amount") // usado em SAVING
-  deadline      DateTime? @db.Date // usado em SAVING
-  categoryId    String?   @map("category_id") // usado em SPENDING_LIMIT
-  userId        String    @map("user_id")
+  targetAmount  Int       @map("target_amount")
+  currentAmount Int       @default(0) @map("current_amount")
+  deadline      DateTime? @db.Date
+  categoryId    String?   @map("category_id")
+  workspaceId   String    @map("workspace_id")
   createdAt     DateTime  @default(now()) @map("created_at")
 
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  category Category? @relation(fields: [categoryId], references: [id])
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  category  Category? @relation(fields: [categoryId], references: [id])
 
   @@map("goals")
 }
