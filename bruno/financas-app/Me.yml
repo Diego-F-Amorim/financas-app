@@ -10,6 +10,17 @@ http:
     type: bearer
     token: "{{token}}"
 
+runtime:
+  actions:
+    - type: set-variable
+      phase: after-response
+      selector:
+        expression: res.body.memberships[0].workspace.id
+        method: jsonq
+      variable:
+        name: workspaceId
+        scope: runtime
+
 settings:
   encodeUrl: true
   timeout: 0

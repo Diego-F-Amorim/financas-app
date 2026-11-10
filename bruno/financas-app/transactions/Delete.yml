@@ -1,0 +1,16 @@
+info:
+  name: Delete
+  type: http
+  seq: 4
+
+http:
+  method: DELETE
+  url: http://localhost:3333/workspaces/{{workspaceId}}/transactions/617b1e4d-c3cb-4c97-93da-569f6f955afe
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

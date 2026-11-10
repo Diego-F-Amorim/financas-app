@@ -3,6 +3,9 @@ import { prisma } from "./lib/prisma.js";
 import { authRoutes } from "./modules/auth/auth.routes.js";
 import { errorHandler } from "./middlewares/error-handler.js";
 import { env } from "./env.js";
+import { ensureAuthenticated } from "./middlewares/ensure-authenticated.js";
+import { ensureWorkspaceAccess } from "./middlewares/ensure-workspace-access.js";
+import { transactionsRoutes } from "./modules/transactions/transactions.routes.js";
 
 const app = express();
 
@@ -21,6 +24,13 @@ app.get("/categories", async (req, res) => {
 });
 
 app.use("/auth", authRoutes);
+
+app.use(
+  "/workspaces/:workspaceId/transactions",
+  ensureAuthenticated,
+  ensureWorkspaceAccess,
+  transactionsRoutes,
+);
 
 app.use(errorHandler);
 
