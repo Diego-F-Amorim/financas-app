@@ -15,7 +15,7 @@ de acesso por papel.
 | ----------------------------------------------- | :------: | :-------: |
 | Cadastro e login de usuário                     |    ✅    |    ✅     |
 | Espaço pessoal criado automaticamente           |    ✅    |    ✅     |
-| Lançamentos de receitas e despesas              |    ✅    |    ⏳     |
+| Lançamentos de receitas e despesas              |    ✅    |    ✅     |
 | Categorias padrão                               |    ✅    |    ⏳     |
 | Categorias personalizadas                       |    ⏳    |    ⏳     |
 | Dashboard (saldo e gastos por categoria no mês) |    ⏳    |    ⏳     |

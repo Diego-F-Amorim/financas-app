@@ -2,8 +2,10 @@ import { useEffect, useState, type ReactNode } from "react";
 import { api, tokenStorage } from "../lib/api";
 import type { User } from "../types";
 import { AuthContext } from "./auth-context";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const queryClient = useQueryClient();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(() => tokenStorage.get() !== null);
 
@@ -37,6 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   function logout() {
     tokenStorage.clear();
+    queryClient.clear();
     setUser(null);
   }
 
