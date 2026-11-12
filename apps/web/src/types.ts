@@ -17,3 +17,27 @@ export interface User {
   createdAt: string;
   memberships: Membership[];
 }
+
+export type TransactionType = "INCOME" | "EXPENSE";
+
+export interface Category {
+  id: string;
+  name: string;
+  type: TransactionType;
+  color: string | null;
+  icon: string | null;
+}
+
+export interface Transaction {
+  id: string;
+  description: string;
+  amount: number; // centavos
+  type: TransactionType;
+  date: string;
+  categoryId: string;
+  category: {
+    id: string;
+    name: string;
+    color: string | null;
+  };
+}

@@ -3,6 +3,8 @@ import { ProtectedRoute } from "./components/protected-route";
 import { DashboardPage } from "./pages/dashboard-page";
 import { LoginPage } from "./pages/login-page";
 import { RegisterPage } from "./pages/register-page";
+import { AppLayout } from "./components/app-layout";
+import { TransactionsPage } from "./pages/transactions-page";
 
 function App() {
   return (
@@ -11,8 +13,11 @@ function App() {
       <Route path="/cadastro" element={<RegisterPage />} />
 
       <Route element={<ProtectedRoute />}>
-        <Route path="/" element={<DashboardPage />} />
-      </Route>
+  <Route element={<AppLayout />}>
+    <Route path="/" element={<DashboardPage />} />
+    <Route path="/lancamentos" element={<TransactionsPage />} />
+  </Route>
+</Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
