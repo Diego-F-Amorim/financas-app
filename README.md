@@ -13,8 +13,8 @@ de acesso por papel.
 
 | Funcionalidade                                  | Back-end | Front-end |
 | ----------------------------------------------- | :------: | :-------: |
-| Cadastro e login de usuário                     |    ✅    |    ⏳     |
-| Espaço pessoal criado automaticamente           |    ✅    |    ⏳     |
+| Cadastro e login de usuário                     |    ✅    |    ✅     |
+| Espaço pessoal criado automaticamente           |    ✅    |    ✅     |
 | Lançamentos de receitas e despesas              |    ✅    |    ⏳     |
 | Categorias padrão                               |    ✅    |    ⏳     |
 | Categorias personalizadas                       |    ⏳    |    ⏳     |
